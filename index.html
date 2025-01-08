@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sauna Counter</title>
+    <link rel="manifest" href="manifest.json" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+      }
+      #counter {
+        font-size: 72px;
+        margin: 20px;
+      }
+      button {
+        font-size: 24px;
+        padding: 10px 20px;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #incrementBtn {
+        background-color: #4caf50;
+        color: white;
+      }
+      #resetBtn {
+        background-color: #f44336;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="counter">0</div>
+    <div>
+      <button id="incrementBtn">증가</button>
+      <button id="resetBtn">초기화</button>
+    </div>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+      }
+
+      const counterDisplay = document.getElementById("counter");
+      const incrementBtn = document.getElementById("incrementBtn");
+      const resetBtn = document.getElementById("resetBtn");
+
+      let count = parseInt(localStorage.getItem("counter")) || 0;
+      counterDisplay.textContent = count;
+
+      incrementBtn.addEventListener("click", () => {
+        count++;
+        counterDisplay.textContent = count;
+        localStorage.setItem("counter", count);
+      });
+
+      resetBtn.addEventListener("click", () => {
+        count = 0;
+        counterDisplay.textContent = count;
+        localStorage.setItem("counter", count);
+      });
+    </script>
+  </body>
+</html>
