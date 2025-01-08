@@ -121,6 +121,7 @@
         text-align: center;
       }
     </style>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
   </head>
   <body>
     <div class="container">
@@ -181,7 +182,10 @@
       function updateCounterDisplay(value) {
         counterDisplay.textContent = value;
 
-        // 카운터 색상 변경 � 메시지 표시 로직
+        // favicon 배지 업데이��
+        updateFaviconBadge(value);
+
+        // 카운터 색상 변경 로직
         if (value > 10) {
           counterDisplay.style.color = "#ff0000";
           const extraCount = value - 10;
@@ -206,6 +210,26 @@
         }
       }
 
+      // favicon 배지 업데이트 함수
+      function updateFaviconBadge(count) {
+        if ("setAppBadge" in navigator) {
+          // 배지 카운트 설정
+          navigator.setAppBadge(count).catch((error) => {
+            console.log("배지 업데이트 실패:", error);
+          });
+        }
+      }
+
+      // 페이지 숨김 시 배지 업데이트
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          updateFaviconBadge(count);
+        } else {
+          // 페이지 활성 시 배지 제거 (선택사항)
+          // navigator.clearAppBadge();
+        }
+      });
+
       let count = parseInt(localStorage.getItem("counter")) || 0;
       updateCounterDisplay(count);
 
@@ -225,7 +249,7 @@
 
       resetBtn.addEventListener("click", resetCounter);
 
-      // 초기화 및 �기적 업데이트
+      // 초기화 및 기적 업데이트
       updateDateTime();
       setInterval(updateDateTime, 1000);
       setInterval(checkMonthlyReset, 1000);
