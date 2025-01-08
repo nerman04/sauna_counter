@@ -167,31 +167,21 @@
         }
       }
 
-      function sendNotification(message) {
+      async function sendNotification(message) {
         try {
-          if (
-            "Notification" in window &&
-            Notification.permission === "granted"
-          ) {
-            // 알림 옵션 �정
+          if ("serviceWorker" in navigator && "Notification" in window) {
+            const registration = await navigator.serviceWorker.ready;
+
             const options = {
-              body: "test",
+              body: message,
               icon: "/icons/icon-192x192.png",
               badge: "/icons/icon-96x96.png",
               vibrate: [200, 100, 200],
               requireInteraction: true,
-              tag: "sauna-counter",
-              renotify: true,
             };
 
-            // 알림 생성
-            const notification = new Notification("사우나 카운터", options);
-
-            notification.onclick = function (event) {
-              event.preventDefault();
-              window.focus();
-              notification.close();
-            };
+            await registration.showNotification("사우나 �운터", options);
+            console.log("알림 발송 성공");
           }
         } catch (error) {
           console.error("알림 발송 실패:", error);
