@@ -180,40 +180,18 @@
               badge: "/icons/icon-96x96.png",
               vibrate: [200, 100, 200],
               requireInteraction: true,
-              silent: false,
               tag: "sauna-counter",
               renotify: true,
-              data: {
-                url: window.location.href,
-              },
             };
 
-            // 알림 생성 및 에러 체크
-            const notification = new Notification(
-              "사우나 카운터 알림",
-              options
-            );
+            // 알림 생성
+            const notification = new Notification("사우나 카운터", options);
 
-            // 알림 클릭 이벤트
             notification.onclick = function (event) {
               event.preventDefault();
               window.focus();
               notification.close();
             };
-
-            // 알림 에러 이벤트
-            notification.onerror = function (error) {
-              console.error("알림 표시 실패:", error);
-            };
-
-            // 알림 표시 확인
-            console.log("알림이 생성되었습니다:", message);
-          } else {
-            console.log(
-              "알림이 허용되지 않았습니다. 현재 권한:",
-              Notification.permission
-            );
-            requestNotificationPermission();
           }
         } catch (error) {
           console.error("알림 발송 실패:", error);
