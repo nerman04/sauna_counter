@@ -122,6 +122,8 @@
       }
     </style>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#4CAF50" />
   </head>
   <body>
     <div class="container">
@@ -182,7 +184,7 @@
       function updateCounterDisplay(value) {
         counterDisplay.textContent = value;
 
-        // favicon 배지 업데이��
+        // favicon 배지 업데이트
         updateFaviconBadge(value);
 
         // 카운터 색상 변경 로직
