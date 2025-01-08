@@ -1,5 +1,12 @@
 const CACHE_NAME = "sauna-counter-v1";
-const assets = ["/", "/index.html", "/icon.svg"];
+const assets = [
+  "./",
+  "./index.html",
+  "./manifest.json",
+  "./favicon.svg",
+  "./icons/icon-192x192.png",
+  "./icons/icon-512x512.png",
+];
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
