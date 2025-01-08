@@ -212,13 +212,28 @@
         }
       }
 
-      // favicon 배지 업데이트 함수
-      function updateFaviconBadge(count) {
-        if ("setAppBadge" in navigator) {
-          // 배지 카운트 설정
-          navigator.setAppBadge(count).catch((error) => {
-            console.log("배지 업데이트 실패:", error);
-          });
+      // 배지 업데이트 함수 수정
+      async function updateFaviconBadge(count) {
+        try {
+          // BadgingNotification API 확인
+          if ("ExperimentalBadge" in window) {
+            await window.ExperimentalBadge.set(count);
+            console.log("실험적 배지 API 사용:", count);
+          }
+          // 표준 Badging API 확인
+          else if ("setAppBadge" in navigator) {
+            await navigator.setAppBadge(count);
+            console.log("표준 배지 API 사용:", count);
+          }
+          // 레거시 Badge API �인
+          else if ("setExperimentalAppBadge" in navigator) {
+            await navigator.setExperimentalAppBadge(count);
+            console.log("레거시 배지 API 사용:", count);
+          } else {
+            console.log("지원되는 배지 API가 없습니다");
+          }
+        } catch (error) {
+          console.error("배지 업데이�� 실패:", error);
         }
       }
 
