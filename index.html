@@ -153,7 +153,13 @@
 
         try {
           const permission = await Notification.requestPermission();
-          console.log("알림 권한:", permission);
+          console.log("알림 권한 상태:", permission);
+
+          if (permission === "granted") {
+            // 테스트 알림 발송
+            sendNotification("알림 테스트: 권한이 허용되었습니다.");
+          }
+
           return permission === "granted";
         } catch (error) {
           console.error("알림 권한 요청 실패:", error);
@@ -172,15 +178,41 @@
               body: message,
               icon: "/icons/icon-192x192.png",
               badge: "/icons/icon-96x96.png",
-              vibrate: [200, 100, 200], // 진동 패턴 추가
-              requireInteraction: true, // 사용자가 직접 닫을 때까지 알림 유지
+              vibrate: [200, 100, 200],
+              requireInteraction: true,
+              silent: false,
+              tag: "sauna-counter",
+              renotify: true,
+              data: {
+                url: window.location.href,
+              },
             };
 
-            // 알림 생성
-            new Notification("사우나 카운터 알림", options);
+            // 알림 생성 및 에러 체크
+            const notification = new Notification(
+              "사우나 카운터 알림",
+              options
+            );
+
+            // 알림 클릭 이벤트
+            notification.onclick = function (event) {
+              event.preventDefault();
+              window.focus();
+              notification.close();
+            };
+
+            // 알림 에러 이벤트
+            notification.onerror = function (error) {
+              console.error("알림 표시 실패:", error);
+            };
+
+            // 알림 표시 확인
+            console.log("알림이 생성되었습니다:", message);
           } else {
-            console.log("알림이 허용되지 않았습니다.");
-            // 알림이 허용되지 않은 경우 다시 권한 요청
+            console.log(
+              "알림이 허용되지 않았습니다. 현재 권한:",
+              Notification.permission
+            );
             requestNotificationPermission();
           }
         } catch (error) {
@@ -207,7 +239,7 @@
           document.getElementById("extraFee").textContent = "";
         }
 
-        // 카운트가 정��히 10일 때만 알림 발송
+        // 카운트가 10일 때만 알림 발송
         if (value === 10) {
           console.log("10회 도달, 알림 발송 시도");
           sendNotification("월 사용한도(10)에 도달하였습니다.");
