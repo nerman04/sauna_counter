@@ -13,37 +13,126 @@
         justify-content: center;
         height: 100vh;
         margin: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f0f0f0;
+        font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui,
+          Roboto, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       }
+
+      .container {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        text-align: center;
+      }
+
       #counter {
-        font-size: 72px;
+        font-size: 96px;
+        font-weight: bold;
+        color: #2c3e50;
         margin: 20px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
       }
+
+      .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        align-items: center;
+      }
+
       button {
-        font-size: 24px;
-        padding: 10px 20px;
-        margin: 10px;
+        font-size: 18px;
+        padding: 12px 24px;
         border: none;
-        border-radius: 5px;
+        border-radius: 50px;
         cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        min-width: 50px;
       }
+
+      #incrementBtn,
+      #decrementBtn {
+        font-size: 42px;
+        width: 60px;
+        height: 60px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      #resetBtn {
+        padding: 12px 24px;
+        font-size: 18px;
+      }
+
+      #decrementBtn {
+        background-color: #3498db;
+        color: white;
+      }
+
+      #decrementBtn:hover {
+        background-color: #2980b9;
+        transform: translateY(-2px);
+      }
+
       #incrementBtn {
         background-color: #4caf50;
         color: white;
       }
+
+      #incrementBtn:hover {
+        background-color: #45a049;
+        transform: translateY(-2px);
+      }
+
       #resetBtn {
         background-color: #f44336;
         color: white;
       }
+
+      #resetBtn:hover {
+        background-color: #da190b;
+        transform: translateY(-2px);
+      }
+
+      .datetime {
+        font-size: 1.8rem;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+        font-weight: 500;
+      }
+
+      .copyright {
+        position: fixed;
+        bottom: 20px;
+        color: #666;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      .extra-fee {
+        margin-top: 15px;
+        font-size: 1.1rem;
+        color: #e74c3c;
+        font-weight: 500;
+      }
     </style>
   </head>
   <body>
-    <div id="counter">0</div>
-    <div>
-      <button id="incrementBtn">증가</button>
-      <button id="resetBtn">초기화</button>
+    <div class="container">
+      <div id="datetime" class="datetime">2024년 3월 21일 12:34:56</div>
+      <div id="counter">0</div>
+      <div class="button-group">
+        <button id="incrementBtn">+</button>
+        <button id="decrementBtn">-</button>
+        <button id="resetBtn">Clear</button>
+      </div>
+      <div id="extraFee" class="extra-fee"></div>
     </div>
+    <div class="copyright">© 2025 sks</div>
 
     <script>
       if ("serviceWorker" in navigator) {
@@ -51,23 +140,120 @@
       }
 
       const counterDisplay = document.getElementById("counter");
+      const decrementBtn = document.getElementById("decrementBtn");
       const incrementBtn = document.getElementById("incrementBtn");
       const resetBtn = document.getElementById("resetBtn");
 
-      let count = parseInt(localStorage.getItem("counter")) || 0;
-      counterDisplay.textContent = count;
+      // 알림 권한 요청
+      async function requestNotificationPermission() {
+        if ("Notification" in window) {
+          const permission = await Notification.requestPermission();
+          return permission === "granted";
+        }
+        return false;
+      }
 
+      // 알림 보내기 함수
+      function sendNotification(message) {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("사우나 카운터 알림", {
+            body: message,
+            icon: "/icons/icon-192x192.png",
+            badge: "/icons/icon-96x96.png",
+          });
+        }
+      }
+
+      function updateCounterDisplay(value) {
+        counterDisplay.textContent = value;
+
+        // 카운터 색상 변경 로직
+        if (value > 10) {
+          counterDisplay.style.color = "#ff0000";
+          const extraCount = value - 10;
+          const extraFee = extraCount * 2000;
+          document.getElementById(
+            "extraFee"
+          ).textContent = `초과 이용료: ${extraFee.toLocaleString()}원`;
+        } else if (value >= 8) {
+          counterDisplay.style.color = "#ff8c00";
+          document.getElementById("extraFee").textContent = "";
+        } else {
+          counterDisplay.style.color = "#2c3e50";
+          document.getElementById("extraFee").textContent = "";
+        }
+
+        // 카운트가 10이 되면 알림 발송
+        if (value === 10) {
+          sendNotification("월 사용한도(10)에 도달하였습니다.");
+        }
+      }
+
+      // 초기 카운터 설정
+      let count = parseInt(localStorage.getItem("counter")) || 0;
+      updateCounterDisplay(count);
+
+      // 감소 버튼 이벤트
+      decrementBtn.addEventListener("click", () => {
+        if (count > 0) {
+          // 0 이하로 내려가지 않도록 체크
+          count--;
+          updateCounterDisplay(count);
+          localStorage.setItem("counter", count);
+        }
+      });
+
+      // 증가 버튼 이벤트
       incrementBtn.addEventListener("click", () => {
         count++;
-        counterDisplay.textContent = count;
+        updateCounterDisplay(count);
         localStorage.setItem("counter", count);
       });
 
-      resetBtn.addEventListener("click", () => {
+      // 카운터 초기화 함수 수정
+      function resetCounter() {
         count = 0;
-        counterDisplay.textContent = count;
+        updateCounterDisplay(count);
         localStorage.setItem("counter", count);
-      });
+      }
+
+      resetBtn.addEventListener("click", resetCounter);
+
+      // 매월 1일 자정 체크 함수
+      function checkMonthlyReset() {
+        const now = new Date();
+        if (
+          now.getDate() === 1 &&
+          now.getHours() === 0 &&
+          now.getMinutes() === 0 &&
+          now.getSeconds() === 0
+        ) {
+          resetCounter();
+        }
+      }
+
+      // 1초마다 매월 1일 자정 체크
+      setInterval(checkMonthlyReset, 1000);
+
+      // 날짜 시간 표시 함수
+      function updateDateTime() {
+        const now = new Date();
+        const options = {
+          year: "numeric",
+          month: "long",
+        };
+        document.getElementById("datetime").textContent = now.toLocaleString(
+          "ko-KR",
+          options
+        );
+      }
+
+      // 1초마다 시간 업데이트
+      updateDateTime();
+      setInterval(updateDateTime, 1000);
+
+      // 페이지 로드시 알림 권한 요청
+      requestNotificationPermission();
     </script>
   </body>
 </html>
