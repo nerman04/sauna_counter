@@ -120,13 +120,6 @@
         font-size: 0.9rem;
         text-align: center;
       }
-
-      .last-count {
-        margin-top: 15px;
-        color: #666;
-        font-size: 0.9rem;
-        text-align: center;
-      }
     </style>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="manifest" href="./manifest.json" />
@@ -145,7 +138,6 @@
         <button id="resetBtn">Clear</button>
       </div>
       <div id="extraFee" class="extra-fee"></div>
-      <div id="lastCountDate" class="last-count"></div>
     </div>
     <div class="copyright">© 2025 sks</div>
 
@@ -176,24 +168,11 @@
         localStorage.setItem("counter", count);
       }
 
-      // 매월 1일 자정 체크 함수
-      function checkMonthlyReset() {
-        const now = new Date();
-        if (
-          now.getDate() === 1 &&
-          now.getHours() === 0 &&
-          now.getMinutes() === 0 &&
-          now.getSeconds() === 0
-        ) {
-          resetCounter();
-        }
-      }
-
-      // 월 변경 체크 및 초기화 함수 추가
+      // 월 변경 체크 및 초기화 함수 수정
       function checkMonthChange() {
         const lastCountDate = localStorage.getItem("lastCountDate");
         if (lastCountDate) {
-          const lastDate = new Date(lastCountDate.split("마지막 카운트: ")[1]);
+          const lastDate = new Date(lastCountDate);
           const currentDate = new Date();
 
           if (
@@ -295,32 +274,15 @@
 
       resetBtn.addEventListener("click", resetCounter);
 
-      // 마지막 카운트 날짜 업데이트 함수
+      // 마지막 카운트 날짜 업데이트 함수 수정
       function updateLastCountDate() {
         const now = new Date();
-        const options = {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        };
-        const dateStr = now.toLocaleString("ko-KR", options);
-        localStorage.setItem("lastCountDate", dateStr);
-      }
-
-      // 저장된 마지막 카운트 날짜 불러오기 부분 제거
-      const savedLastDate = localStorage.getItem("lastCountDate");
-      if (savedLastDate) {
-        document.getElementById(
-          "lastCountDate"
-        ).textContent = `마지막 카운트: ${savedLastDate}`;
+        localStorage.setItem("lastCountDate", now.toISOString());
       }
 
       // 초기화 및 기적 업데이트
       updateDateTime();
       setInterval(updateDateTime, 1000);
-      setInterval(checkMonthlyReset, 1000);
     </script>
   </body>
 </html>
