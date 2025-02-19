@@ -120,6 +120,13 @@
         font-size: 0.9rem;
         text-align: center;
       }
+
+      .last-count {
+        margin-top: 15px;
+        color: #666;
+        font-size: 0.9rem;
+        text-align: center;
+      }
     </style>
     <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <link rel="manifest" href="./manifest.json" />
@@ -138,6 +145,7 @@
         <button id="resetBtn">Clear</button>
       </div>
       <div id="extraFee" class="extra-fee"></div>
+      <div id="lastCountDate" class="last-count"></div>
     </div>
     <div class="copyright">© 2025 sks</div>
 
@@ -181,6 +189,22 @@
         }
       }
 
+      // 월 변경 체크 및 초기화 함수 추가
+      function checkMonthChange() {
+        const lastCountDate = localStorage.getItem("lastCountDate");
+        if (lastCountDate) {
+          const lastDate = new Date(lastCountDate.split("마지막 카운트: ")[1]);
+          const currentDate = new Date();
+
+          if (
+            lastDate.getMonth() !== currentDate.getMonth() ||
+            lastDate.getFullYear() !== currentDate.getFullYear()
+          ) {
+            resetCounter();
+          }
+        }
+      }
+
       function updateCounterDisplay(value) {
         counterDisplay.textContent = value;
 
@@ -214,6 +238,9 @@
 
       // 배지 업데이트 함수 수정
       async function updateFaviconBadge(count) {
+        // 배지쪽은 잘 안되니..우선 return 하자
+        return;
+
         try {
           // BadgingNotification API 확인
           if ("ExperimentalBadge" in window) {
@@ -225,7 +252,7 @@
             await navigator.setAppBadge(count);
             console.log("표준 배지 API 사용:", count);
           }
-          // 레거시 Badge API �인
+          // 레거시 Badge API 확인
           else if ("setExperimentalAppBadge" in navigator) {
             await navigator.setExperimentalAppBadge(count);
             console.log("레거시 배지 API 사용:", count);
@@ -233,7 +260,7 @@
             console.log("지원되는 배지 API가 없습니다");
           }
         } catch (error) {
-          console.error("배지 업데이�� 실패:", error);
+          console.error("배지 업데이트 실패:", error);
         }
       }
 
@@ -248,12 +275,14 @@
       });
 
       let count = parseInt(localStorage.getItem("counter")) || 0;
+      checkMonthChange(); // 월 변경 체크 추가
       updateCounterDisplay(count);
 
       incrementBtn.addEventListener("click", () => {
         count++;
         updateCounterDisplay(count);
         localStorage.setItem("counter", count);
+        updateLastCountDate();
       });
 
       decrementBtn.addEventListener("click", () => {
@@ -265,6 +294,28 @@
       });
 
       resetBtn.addEventListener("click", resetCounter);
+
+      // 마지막 카운트 날짜 업데이트 함수
+      function updateLastCountDate() {
+        const now = new Date();
+        const options = {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        };
+        const dateStr = now.toLocaleString("ko-KR", options);
+        localStorage.setItem("lastCountDate", dateStr);
+      }
+
+      // 저장된 마지막 카운트 날짜 불러오기 부분 제거
+      const savedLastDate = localStorage.getItem("lastCountDate");
+      if (savedLastDate) {
+        document.getElementById(
+          "lastCountDate"
+        ).textContent = `마지막 카운트: ${savedLastDate}`;
+      }
 
       // 초기화 및 기적 업데이트
       updateDateTime();
